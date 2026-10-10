@@ -204,6 +204,7 @@ export interface NewPatientInput {
   display_name: string;
   date_of_birth: string;
   diagnosis: string;
+  treatment_protocol?: string;
   referring_doctor: string;
   notes: string;
 }
@@ -221,35 +222,156 @@ export const addPatient = async (input: NewPatientInput): Promise<PatientSummary
     const nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1004;
     const patient_id = `FL-${nextId}`;
 
+    // Compute dates for a coherent chronological progression
+    const today = new Date();
+    const formatDateStr = (d: Date) => d.toISOString().slice(0, 10);
+    
+    const dMinus14 = new Date(today);
+    dMinus14.setDate(dMinus14.getDate() - 14);
+
+    const dMinus5 = new Date(today);
+    dMinus5.setDate(dMinus5.getDate() - 5);
+
+    const dPlus4 = new Date(today);
+    dPlus4.setDate(dPlus4.getDate() + 4);
+
+    const dPlus9 = new Date(today);
+    dPlus9.setDate(dPlus9.getDate() + 9);
+
+    const dPlus14 = new Date(today);
+    dPlus14.setDate(dPlus14.getDate() + 14);
+
+    const protocolName = input.treatment_protocol || 'GnRH Antagonist Protocol';
+    const doctorName = input.referring_doctor || 'Dr. Mercer';
+
+    const docId = `DOC-${900 + (nextId % 100)}`;
+    const intakeDocFilename = `${input.display_name.replace(/\s+/g, '_')}_Intake_Registration.pdf`;
+
+    // 1. Past Documented Events
+    const pastEvents: TimelineEvent[] = [
+      {
+        event_id: `EV-${patient_id}-01`,
+        event_date: formatDateStr(dMinus14),
+        event_type: 'consultation',
+        description: `Initial fertility consultation with ${doctorName}. Medical intake, history of ${input.diagnosis || 'infertility'}, and diagnostic treatment roadmap outlined.`,
+        status: 'completed',
+        source_document_id: docId,
+        source_document_name: intakeDocFilename,
+        verification_status: 'verified',
+      },
+      {
+        event_id: `EV-${patient_id}-02`,
+        event_date: formatDateStr(dMinus5),
+        event_type: 'lab',
+        description: `Baseline ovarian reserve endocrine workup & transvaginal ultrasound completed. Diagnostic baseline verified for ${input.diagnosis}.`,
+        status: 'completed',
+        source_document_id: docId,
+        source_document_name: intakeDocFilename,
+        verification_status: 'verified',
+      },
+    ];
+
+    // 2. Current Active Findings & Status
+    const currentStatusEvents: TimelineEvent[] = [
+      {
+        event_id: `EV-${patient_id}-03`,
+        event_date: formatDateStr(today),
+        event_type: 'procedure',
+        description: `Registration completed and ${protocolName} initiated. Patient started on baseline gonadotropin stimulation protocol.`,
+        status: 'documented',
+        source_document_id: docId,
+        source_document_name: intakeDocFilename,
+        verification_status: 'verified',
+      },
+    ];
+
+    // 3. Explicitly Planned Future Chronological Milestones
+    const futureEvents: TimelineEvent[] = [
+      {
+        event_id: `EV-${patient_id}-04`,
+        event_date: formatDateStr(dPlus4),
+        event_type: 'procedure',
+        description: `Mid-cycle follicular response monitoring ultrasound & serum Estradiol (E2) check scheduled.`,
+        status: 'planned',
+        source_document_id: docId,
+        source_document_name: intakeDocFilename,
+        verification_status: 'unverified',
+      },
+      {
+        event_id: `EV-${patient_id}-05`,
+        event_date: formatDateStr(dPlus9),
+        event_type: 'procedure',
+        description: `Anticipated trigger injection (hCG / GnRH agonist) & Oocyte Pick-Up (Egg Retrieval Procedure) scheduled.`,
+        status: 'planned',
+        source_document_id: null,
+        source_document_name: null,
+        verification_status: 'unverified',
+      },
+      {
+        event_id: `EV-${patient_id}-06`,
+        event_date: formatDateStr(dPlus14),
+        event_type: 'lab',
+        description: `Embryology laboratory assessment: Day-5 blastocyst fertilization check & embryo vitrification / transfer follow-up.`,
+        status: 'planned',
+        source_document_id: null,
+        source_document_name: null,
+        verification_status: 'unverified',
+      },
+    ];
+
+    // Create intake document
+    const newDoc: Document = {
+      document_id: docId,
+      filename: intakeDocFilename,
+      patient_id,
+      patient_display_name: `${input.display_name} (Demo)`,
+      document_type: 'Consultation Note',
+      upload_timestamp: new Date().toISOString(),
+      document_date: formatDateStr(today),
+      page_count: 3,
+      file_size_bytes: 384000,
+      processing_status: 'indexed',
+      is_duplicate: false,
+      duplicate_of_document_id: null,
+      processing_error: null,
+      requires_review: false,
+    };
+
     const newPatient: PatientSummary = {
       patient_id,
       display_name: `${input.display_name} (Demo)`,
-      last_visit_date: new Date().toISOString().slice(0, 10),
-      indexed_record_count: 0,
-      latest_event_description: `New patient registration — ${input.diagnosis || 'Diagnosis pending'}`,
+      last_visit_date: formatDateStr(today),
+      indexed_record_count: 1,
+      latest_event_description: `${protocolName} started — ${input.diagnosis || 'Infertility workup'}`,
       unresolved_flag_count: 0,
     };
 
     const newDetail: PatientDetail = {
       patient_id,
       display_name: `${input.display_name} (Demo)`,
-      summary: `New patient registered on ${new Date().toLocaleDateString()}. ${input.notes || ''}`.trim(),
-      summary_is_generated: false,
+      summary: `Patient registered under ${protocolName} for ${input.diagnosis || 'infertility management'}. Baseline diagnostic panel documented. Cycle timeline actively tracked from intake through planned egg retrieval and laboratory culture. ${input.notes ? 'Intake note: ' + input.notes : ''}`.trim(),
+      summary_is_generated: true,
       extracted_facts: {
         date_of_birth: input.date_of_birth,
         diagnosis: input.diagnosis || 'Pending',
-        referring_doctor: input.referring_doctor || 'Not specified',
+        protocol: protocolName,
+        referring_doctor: doctorName,
+        cycle_status: 'Active Stimulation',
+        intake_date: formatDateStr(today),
       },
-      past_events: [],
-      current_status_events: [],
-      future_events: [],
+      past_events: pastEvents,
+      current_status_events: currentStatusEvents,
+      future_events: futureEvents,
       unresolved_flags: [],
     };
 
     mockPatients = [newPatient, ...mockPatients];
     mockPatientDetails = { [patient_id]: newDetail, ...mockPatientDetails };
+    mockDocuments = [newDoc, ...mockDocuments];
+
     setStored('patients', mockPatients);
     setStored('patient_details', mockPatientDetails);
+    setStored('documents', mockDocuments);
 
     // Log activity
     const actEntry: ActivityEntry = {
@@ -257,8 +379,10 @@ export const addPatient = async (input: NewPatientInput): Promise<PatientSummary
       timestamp: new Date().toISOString(),
       action: 'PATIENT_REGISTERED',
       patient_id,
-      document_id: null,
-      details: `New patient ${newPatient.display_name} registered with ID ${patient_id}.`,
+      patient_display_name: newPatient.display_name,
+      document_id: docId,
+      document_name: intakeDocFilename,
+      details: `New patient ${newPatient.display_name} registered with full chronological care pathway (Intake, Baseline, Stimulation, Retrieval).`,
     };
     mockActivity = [actEntry, ...mockActivity];
     setStored('activity', mockActivity);

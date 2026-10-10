@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, UserPlus, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { X, UserPlus, Loader2, AlertCircle, CheckCircle2, GitCommit, Calendar, Clock, ArrowRight } from 'lucide-react';
 import { addPatient, type NewPatientInput } from '../services/api';
 import type { PatientSummary } from '../types';
 
@@ -9,10 +9,19 @@ interface Props {
   onAdded: (patient: PatientSummary) => void;
 }
 
+const PROTOCOL_OPTIONS = [
+  'GnRH Antagonist Protocol',
+  'Freeze-All IVF with PGT-A',
+  'Long Agonist IVF Protocol',
+  'Intrauterine Insemination (IUI)',
+  'Diagnostic Ovarian Reserve Workup',
+];
+
 const EMPTY: NewPatientInput = {
   display_name: '',
   date_of_birth: '',
   diagnosis: '',
+  treatment_protocol: 'GnRH Antagonist Protocol',
   referring_doctor: '',
   notes: '',
 };
@@ -235,24 +244,83 @@ export function AddPatientModal({ open, onClose, onAdded }: Props) {
                   </div>
                 </div>
 
-                {/* Referring Doctor */}
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-700">Referring Doctor</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Dr. A. Mercer"
-                    value={form.referring_doctor}
-                    onChange={set('referring_doctor')}
-                    className={fieldClass('referring_doctor')}
-                    maxLength={80}
-                  />
+                {/* Treatment Protocol & Doctor row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-slate-700">
+                      Treatment Protocol <span className="text-teal-600">*</span>
+                    </label>
+                    <select
+                      value={form.treatment_protocol}
+                      onChange={set('treatment_protocol')}
+                      className={fieldClass('treatment_protocol')}
+                    >
+                      {PROTOCOL_OPTIONS.map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-slate-700">Referring Specialist</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Dr. A. Mercer"
+                      value={form.referring_doctor}
+                      onChange={set('referring_doctor')}
+                      className={fieldClass('referring_doctor')}
+                      maxLength={80}
+                    />
+                  </div>
+                </div>
+
+                {/* Chronological Flow Preview Box */}
+                <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-3 text-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-teal-950 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                      <GitCommit className="h-3.5 w-3.5 text-teal-700" />
+                      Auto-Generated Chronological Clinical Flow
+                    </span>
+                    <span className="text-[10px] font-semibold bg-teal-200/70 text-teal-900 px-1.5 py-0.5 rounded">
+                      6 Milestones
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                    <div className="rounded border border-teal-200/80 bg-white p-2 text-[11px] space-y-1 shadow-2xs">
+                      <div className="flex items-center gap-1 font-bold text-teal-900">
+                        <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                        <span>Past / Documented</span>
+                      </div>
+                      <p className="text-slate-600">1. Intake Consultation</p>
+                      <p className="text-slate-600">2. Baseline Diagnostic Labs</p>
+                    </div>
+
+                    <div className="rounded border border-teal-300 bg-teal-100/50 p-2 text-[11px] space-y-1 shadow-2xs">
+                      <div className="flex items-center gap-1 font-bold text-teal-900">
+                        <Clock className="h-3 w-3 text-teal-700" />
+                        <span>Current Stage</span>
+                      </div>
+                      <p className="text-slate-800 font-medium">3. Protocol Start (Active)</p>
+                    </div>
+
+                    <div className="rounded border border-teal-200/80 bg-white p-2 text-[11px] space-y-1 shadow-2xs">
+                      <div className="flex items-center gap-1 font-bold text-violet-900">
+                        <Calendar className="h-3 w-3 text-violet-600" />
+                        <span>Planned Milestones</span>
+                      </div>
+                      <p className="text-slate-600">4. Follicle Monitoring</p>
+                      <p className="text-slate-600">5. Oocyte Retrieval</p>
+                      <p className="text-slate-600">6. Day-5 Embryo Culture</p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Notes */}
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-700">Initial Notes</label>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">Initial Clinical Notes</label>
                   <textarea
-                    rows={3}
+                    rows={2}
                     placeholder="Any relevant intake notes, transfer context, or flags for the clinical team…"
                     value={form.notes}
                     onChange={set('notes')}

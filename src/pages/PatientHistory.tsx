@@ -215,6 +215,81 @@ export function PatientHistory() {
                 )}
               </div>
             </div>
+
+            {/* Chronological Care Journey Roadmap */}
+            <div className="rounded-md border border-slate-200 bg-white p-3.5 shadow-2xs space-y-2">
+              <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                <span className="font-semibold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  <CalendarRange className="h-3.5 w-3.5 text-teal-600" />
+                  Chronological Care Journey &amp; Cycle Milestones
+                </span>
+                <span className="text-[11px] text-teal-800 bg-teal-50 px-2 py-0.5 rounded font-semibold border border-teal-200">
+                  {patient.extracted_facts?.protocol ? String(patient.extracted_facts.protocol) : 'Antagonist IVF Protocol'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-1">
+                {/* Step 1 */}
+                <div className="rounded border border-emerald-200 bg-emerald-50/50 p-2 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-emerald-800 uppercase">Phase 1</span>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                  </div>
+                  <p className="font-bold text-slate-800 text-[11px] leading-tight">Intake &amp; Referral</p>
+                  <p className="text-[10px] text-emerald-700 font-medium">Completed</p>
+                </div>
+
+                {/* Step 2 */}
+                <div className="rounded border border-emerald-200 bg-emerald-50/50 p-2 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-emerald-800 uppercase">Phase 2</span>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                  </div>
+                  <p className="font-bold text-slate-800 text-[11px] leading-tight">Baseline Labs &amp; Scan</p>
+                  <p className="text-[10px] text-emerald-700 font-medium">Documented</p>
+                </div>
+
+                {/* Step 3 */}
+                <div className="rounded border border-teal-300 bg-teal-50 p-2 text-xs space-y-1 ring-1 ring-teal-400">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-teal-800 uppercase">Phase 3</span>
+                    <Clock className="h-3.5 w-3.5 text-teal-600 animate-pulse" />
+                  </div>
+                  <p className="font-bold text-teal-950 text-[11px] leading-tight">Stimulation Protocol</p>
+                  <p className="text-[10px] text-teal-800 font-bold">Active Stage</p>
+                </div>
+
+                {/* Step 4 */}
+                <div className="rounded border border-slate-200 bg-slate-50/70 p-2 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Phase 4</span>
+                    <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                  </div>
+                  <p className="font-semibold text-slate-700 text-[11px] leading-tight">Follicle Monitoring</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Scheduled</p>
+                </div>
+
+                {/* Step 5 */}
+                <div className="rounded border border-slate-200 bg-slate-50/70 p-2 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Phase 5</span>
+                    <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                  </div>
+                  <p className="font-semibold text-slate-700 text-[11px] leading-tight">Oocyte Retrieval</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Planned</p>
+                </div>
+
+                {/* Step 6 */}
+                <div className="rounded border border-slate-200 bg-slate-50/70 p-2 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Phase 6</span>
+                    <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                  </div>
+                  <p className="font-semibold text-slate-700 text-[11px] leading-tight">Embryo Vitrification</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Planned</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Tab Navigation */}
