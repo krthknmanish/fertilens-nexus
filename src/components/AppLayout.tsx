@@ -1,10 +1,16 @@
 import React from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
+import { useRole } from '../context/RoleContext';
 
 export function AppLayout() {
   const location = useLocation();
+  const { isAuthenticated } = useRole();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
 
   const getPageTitle = (pathname: string): string => {
     if (pathname === '/') return 'Clinical Overview';

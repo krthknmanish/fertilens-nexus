@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { FlaskConical, RefreshCw, UserCheck } from 'lucide-react';
+import { FlaskConical, RefreshCw, UserCheck, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { getHealth } from '../services/api';
 import { useRole, type UserRole } from '../context/RoleContext';
 import { VoiceSearch } from './VoiceSearch';
 
 export function Topbar({ title }: { title?: string }) {
-  const { role, setRole } = useRole();
+  const { role, setRole, logout } = useRole();
+  const navigate = useNavigate();
   const [online, setOnline] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const checkHealth = async () => {
     setChecking(true);
@@ -51,7 +58,7 @@ export function Topbar({ title }: { title?: string }) {
         {/* Role Switcher Pill */}
         <div className="flex items-center gap-1.5 rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs">
           <UserCheck className="h-3.5 w-3.5 text-slate-500" />
-          <span className="text-slate-500 hidden md:inline font-medium">Demo Role:</span>
+          <span className="text-slate-500 hidden md:inline font-medium">Role:</span>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as UserRole)}
@@ -101,6 +108,17 @@ export function Topbar({ title }: { title?: string }) {
             <RefreshCw className={`h-3 w-3 ${checking ? 'animate-spin text-teal-600' : ''}`} />
           </button>
         </div>
+
+        {/* Logout Button */}
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex items-center gap-1 rounded border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 transition-colors"
+          title="Sign out of current role"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Sign Out</span>
+        </button>
       </div>
     </header>
   );

@@ -88,27 +88,47 @@ interface RoleContextType {
   role: UserRole;
   setRole: (role: UserRole) => void;
   permissions: RolePermissions;
+  isAuthenticated: boolean;
+  login: (role: UserRole) => void;
+  logout: () => void;
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'fertilens_demo_role';
+const ROLE_STORAGE_KEY = 'fertilens_demo_role';
+const AUTH_STORAGE_KEY = 'fertilens_demo_auth';
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [role, setRoleState] = useState<UserRole>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as UserRole | null;
+    const saved = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole | null;
     return saved && ROLE_DEFINITIONS[saved] ? saved : 'Clinic Administrator';
+  });
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
   });
 
   const setRole = (newRole: UserRole) => {
     setRoleState(newRole);
-    localStorage.setItem(STORAGE_KEY, newRole);
+    localStorage.setItem(ROLE_STORAGE_KEY, newRole);
+  };
+
+  const login = (selectedRole: UserRole) => {
+    setRoleState(selectedRole);
+    setIsAuthenticated(true);
+    localStorage.setItem(ROLE_STORAGE_KEY, selectedRole);
+    localStorage.setItem(AUTH_STORAGE_KEY, 'true');
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
   const permissions = ROLE_DEFINITIONS[role];
 
   return (
-    <RoleContext.Provider value={{ role, setRole, permissions }}>
+    <RoleContext.Provider value={{ role, setRole, permissions, isAuthenticated, login, logout }}>
       {children}
     </RoleContext.Provider>
   );

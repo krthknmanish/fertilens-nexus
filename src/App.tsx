@@ -10,6 +10,7 @@ import { EvidenceSearch } from './pages/EvidenceSearch';
 import { ReviewQueue } from './pages/ReviewQueue';
 import { ActivityLog } from './pages/ActivityLog';
 import { Settings } from './pages/Settings';
+import { LoginPage } from './pages/LoginPage';
 
 function NotFound() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
     <RoleProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
           <Route element={<AppLayout />}>
             <Route index element={<Overview />} />
             <Route path="patients" element={<PatientDirectory />} />
