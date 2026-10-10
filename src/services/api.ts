@@ -200,6 +200,73 @@ export const getPatientTimeline = async (patientId: string): Promise<TimelineEve
   }
 };
 
+export interface NewPatientInput {
+  display_name: string;
+  date_of_birth: string;
+  diagnosis: string;
+  referring_doctor: string;
+  notes: string;
+}
+
+export const addPatient = async (input: NewPatientInput): Promise<PatientSummary> => {
+  // Try real backend first
+  try {
+    return await request<PatientSummary>('/api/patients', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+  } catch {
+    // Generate the next FL-XXXX ID
+    const existingIds = mockPatients.map((p) => parseInt(p.patient_id.replace('FL-', ''), 10)).filter(Boolean);
+    const nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1004;
+    const patient_id = `FL-${nextId}`;
+
+    const newPatient: PatientSummary = {
+      patient_id,
+      display_name: `${input.display_name} (Demo)`,
+      last_visit_date: new Date().toISOString().slice(0, 10),
+      indexed_record_count: 0,
+      latest_event_description: `New patient registration — ${input.diagnosis || 'Diagnosis pending'}`,
+      unresolved_flag_count: 0,
+    };
+
+    const newDetail: PatientDetail = {
+      patient_id,
+      display_name: `${input.display_name} (Demo)`,
+      summary: `New patient registered on ${new Date().toLocaleDateString()}. ${input.notes || ''}`.trim(),
+      summary_is_generated: false,
+      extracted_facts: {
+        date_of_birth: input.date_of_birth,
+        diagnosis: input.diagnosis || 'Pending',
+        referring_doctor: input.referring_doctor || 'Not specified',
+      },
+      past_events: [],
+      current_status_events: [],
+      future_events: [],
+      unresolved_flags: [],
+    };
+
+    mockPatients = [newPatient, ...mockPatients];
+    mockPatientDetails = { [patient_id]: newDetail, ...mockPatientDetails };
+    setStored('patients', mockPatients);
+    setStored('patient_details', mockPatientDetails);
+
+    // Log activity
+    const actEntry: ActivityEntry = {
+      activity_id: `ACT-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      action: 'PATIENT_REGISTERED',
+      patient_id,
+      document_id: null,
+      details: `New patient ${newPatient.display_name} registered with ID ${patient_id}.`,
+    };
+    mockActivity = [actEntry, ...mockActivity];
+    setStored('activity', mockActivity);
+
+    return newPatient;
+  }
+};
+
 // ─── Documents ────────────────────────────────────────────────────────────────
 export interface DocumentListParams {
   search?: string;

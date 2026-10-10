@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Users, RefreshCw, X, RotateCcw } from 'lucide-react';
+import { Search, Users, RefreshCw, X, RotateCcw, UserPlus } from 'lucide-react';
 import { getPatients } from '../services/api';
 import type { PatientSummary } from '../types';
 import { PatientTable } from '../components/PatientTable';
 import { ErrorState } from '../components/ErrorState';
 import { LoadingState } from '../components/LoadingState';
 import { EmptyState } from '../components/EmptyState';
+import { AddPatientModal } from '../components/AddPatientModal';
 
 export function PatientDirectory() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,6 +15,7 @@ export function PatientDirectory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState(searchParams.get('search') ?? '');
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const load = useCallback(async (query?: string) => {
     setLoading(true);
@@ -48,28 +50,46 @@ export function PatientDirectory() {
     setSearchParams({});
   };
 
+  const handlePatientAdded = (patient: PatientSummary) => {
+    // Prepend to list immediately without a reload
+    setPatients((prev) => [patient, ...prev]);
+  };
+
   return (
     <div className="space-y-4 max-w-7xl mx-auto">
       {/* Title & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-            Patient Directory & Longitudinal History
+            Patient Directory &amp; Longitudinal History
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Synthetic fertility patient records with cross-encounter timeline indexing
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => load(searchParams.get('search') ?? '')}
-          disabled={loading}
-          className="inline-flex items-center gap-1.5 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-teal-600' : 'text-slate-500'}`} />
-          <span>Refresh</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Add Patient */}
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-1.5 rounded border border-teal-300 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-800 hover:bg-teal-100 transition-colors"
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            <span>Add Patient</span>
+          </button>
+
+          {/* Refresh */}
+          <button
+            type="button"
+            onClick={() => load(searchParams.get('search') ?? '')}
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 rounded border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-teal-600' : 'text-slate-500'}`} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {/* Search Input Bar */}
@@ -81,7 +101,7 @@ export function PatientDirectory() {
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search by patient display name or clinical ID (e.g., PT-001)…"
+              placeholder="Search by patient display name or clinical ID (e.g., FL-1001)…"
               className="w-full rounded border border-slate-200 bg-slate-50/50 pl-8 pr-8 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none"
             />
             {searchInput && (
@@ -129,12 +149,31 @@ export function PatientDirectory() {
                 <RotateCcw className="h-3 w-3" />
                 <span>Reset search</span>
               </button>
-            ) : undefined
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowAddModal(true)}
+                className="inline-flex items-center gap-1.5 rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700"
+              >
+                <UserPlus className="h-3 w-3" />
+                <span>Register first patient</span>
+              </button>
+            )
           }
         />
       ) : (
         <PatientTable patients={patients} />
       )}
+
+      {/* Add Patient Modal */}
+      <AddPatientModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAdded={(p) => {
+          handlePatientAdded(p);
+          setShowAddModal(false);
+        }}
+      />
     </div>
   );
 }
