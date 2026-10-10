@@ -46,7 +46,7 @@ export function Topbar({ title }: { title?: string }) {
     <header className="flex h-13 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-6 shadow-2xs select-none">
       <div className="flex items-center gap-3">
         <h1 className="text-sm font-bold text-slate-900 tracking-tight">
-          {title || 'FertiLens Nexora'}
+          {title || 'Jeevankura'}
         </h1>
         <span className="text-slate-300 font-light hidden sm:inline">|</span>
         <span className="text-xs text-slate-500 font-normal hidden sm:inline">

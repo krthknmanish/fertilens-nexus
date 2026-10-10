@@ -39,7 +39,7 @@ export function Overview() {
       const data = await getDashboardStats();
       setStats(data);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Unable to connect to FertiLens Nexora backend.');
+      setError(e instanceof Error ? e.message : 'Unable to connect to Jeevankura backend.');
     } finally {
       setLoading(false);
     }

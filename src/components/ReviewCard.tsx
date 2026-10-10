@@ -391,7 +391,7 @@ export function ReviewCard({ flag, onUpdated }: ReviewCardProps) {
                     ? 'Embryology Day-5 Blastocyst Grading: 4 blastocysts vitrified (4AA, 4AB, 3BB, 3BB). Trophectoderm biopsy completed for PGT-A.'
                     : viewingDoc.filename.includes('Semen')
                     ? 'Semen Analysis: Volume 2.1 mL, Concentration 2.8 M/mL, Progressive Motility 14%, Morphology 1%. ICSI recommended.'
-                    : `Medical document ${viewingDoc.document_id} ingested into FertiLens Nexora. Indexed metadata and extracted events are ground-truth synchronized with the patient record.`}
+                    : `Medical document ${viewingDoc.document_id} ingested into Jeevankura. Indexed metadata and extracted events are ground-truth synchronized with the patient record.`}
                 </p>
               </div>
 

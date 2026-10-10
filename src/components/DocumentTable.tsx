@@ -433,7 +433,7 @@ export function DocumentTable({ documents, compact = false }: DocumentTableProps
                     ? 'Comprehensive Semen Analysis: Marcus Vance (FL-1002). Volume: 2.1 mL, Concentration: 2.8 M/mL, Progressive Motility: 14%, Normal Morphology: 1%. Severe oligoasthenoteratozoospermia indicated. ICSI recommended.'
                     : viewingDoc.filename.includes('Fax')
                     ? 'Outside Clinic Intake Fax: Sarah Kowalski. DOB 1994-08-14 matching FL-1003. Demographic confirmation pending for hyphenated surname Chen-Kowalski.'
-                    : `Medical PDF document record ingested into FertiLens Nexora repository for patient ${viewingDoc.patient_id || 'cohort'}. Indexed metadata and extracted temporal events are ground-truth synchronized.`}
+                    : `Medical PDF document record ingested into Jeevankura repository for patient ${viewingDoc.patient_id || 'cohort'}. Indexed metadata and extracted temporal events are ground-truth synchronized.`}
                 </p>
               </div>
             </div>

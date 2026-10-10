@@ -206,7 +206,7 @@ export function Settings() {
         </p>
 
         <p className="leading-relaxed">
-          <strong>2. Non-Diagnostic Guardrail:</strong> FertiLens Nexora does not make clinical diagnoses, recommend drug dosages, or automate clinical decisions. The platform serves as an evidence retrieval and discrepancy auditing tool for authorized healthcare staff.
+          <strong>2. Non-Diagnostic Guardrail:</strong> Jeevankura does not make clinical diagnoses, recommend drug dosages, or automate clinical decisions. The platform serves as an evidence retrieval and discrepancy auditing tool for authorized healthcare staff.
         </p>
 
         <p className="leading-relaxed">
