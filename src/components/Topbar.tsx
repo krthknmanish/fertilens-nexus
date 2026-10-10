@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Wifi, WifiOff, FlaskConical, RefreshCw, UserCheck, ShieldAlert } from 'lucide-react';
+import { FlaskConical, RefreshCw, UserCheck } from 'lucide-react';
 import { getHealth } from '../services/api';
 import { useRole, type UserRole } from '../context/RoleContext';
+import { VoiceSearch } from './VoiceSearch';
 
 export function Topbar({ title }: { title?: string }) {
   const { role, setRole } = useRole();
@@ -70,6 +71,9 @@ export function Topbar({ title }: { title?: string }) {
           <FlaskConical className="h-3.5 w-3.5 text-amber-700" />
           <span>SYNTHETIC DEMO</span>
         </div>
+
+        {/* Voice Search */}
+        <VoiceSearch />
 
         {/* Backend Connectivity Status */}
         <div className="flex items-center gap-2 pl-2 border-l border-slate-200 text-xs">

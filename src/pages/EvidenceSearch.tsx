@@ -57,10 +57,12 @@ export function EvidenceSearch() {
       .finally(() => setPatientsLoading(false));
   }, []);
 
-  // Update state when searchParams changes
+  // Update state when searchParams changes (including voice-search navigation)
   useEffect(() => {
     const pId = searchParams.get('patient_id');
     if (pId) setSelectedPatientId(pId);
+    const q = searchParams.get('q');
+    if (q) setQuery(q);
   }, [searchParams]);
 
   const executeSearch = useCallback(
