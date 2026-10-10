@@ -35,9 +35,9 @@ export function Sidebar() {
         </div>
         <div>
           <div className="flex items-center gap-1">
-            <span className="text-sm font-bold text-slate-900 leading-tight">Jeevankura</span>
+            <span className="text-sm font-bold text-slate-900 leading-tight">FertiLens</span>
             <span className="text-xs font-bold text-teal-700 bg-teal-50 px-1 rounded border border-teal-200 leading-tight">
-              EMR
+              NEXORA
             </span>
           </div>
           <p className="text-xs text-slate-400 font-medium leading-tight mt-0.5">
@@ -104,7 +104,7 @@ export function Sidebar() {
           Synthetic patient data only. Cross-examine primary documents for medical decisions.
         </p>
         <p className="text-slate-400 pt-1 font-mono text-xs">
-          v1.0.0 · Jeevankura Core
+          v1.0.0 · FertiLens Core
         </p>
       </div>
     </aside>

@@ -21,7 +21,7 @@ export function AppLayout() {
     if (pathname === '/reviews') return 'Discrepancy Review Queue';
     if (pathname === '/activity') return 'System Audit Trail';
     if (pathname === '/settings') return 'Settings & Demo Roles';
-    return 'Jeevankura';
+    return 'FertiLens Nexora';
   };
 
   const title = getPageTitle(location.pathname);

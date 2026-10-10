@@ -114,10 +114,10 @@ export function LoginPage() {
         </div>
         <div className="flex items-center justify-center gap-1.5">
           <h1 className="text-xl font-bold tracking-tight text-slate-900">
-            Jeevankura
+            FertiLens
           </h1>
           <span className="text-xs font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">
-            EMR
+            NEXORA
           </span>
         </div>
         <p className="mt-1 text-xs text-slate-500 font-medium">
