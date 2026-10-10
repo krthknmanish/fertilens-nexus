@@ -20,7 +20,7 @@ export function Sidebar() {
     { to: '/', icon: LayoutDashboard, label: 'Overview', end: true, show: permissions.canViewOverview },
     { to: '/patients', icon: Users, label: 'Patient History', end: false, show: permissions.canViewPatients },
     { to: '/documents', icon: FolderOpen, label: 'Document Repository', end: false, show: permissions.canManageDocuments },
-    { to: '/evidence', icon: Search, label: 'Evidence Review', end: false, show: permissions.canSearchEvidence },
+    { to: '/evidence', icon: Search, label: 'Clinical Validation', end: false, show: permissions.canSearchEvidence },
     { to: '/reviews', icon: CheckSquare, label: 'Review Queue', end: false, show: permissions.canReviewDiscrepancies },
     { to: '/activity', icon: Activity, label: 'Activity Log', end: false, show: permissions.canViewAuditLog },
     { to: '/settings', icon: Settings, label: 'Settings & Roles', end: false, show: permissions.canAccessSettings },
@@ -37,7 +37,7 @@ export function Sidebar() {
           <div className="flex items-center gap-1">
             <span className="text-sm font-bold text-slate-900 leading-tight">FertiLens</span>
             <span className="text-xs font-bold text-teal-700 bg-teal-50 px-1 rounded border border-teal-200 leading-tight">
-              NEXUS
+              NEXORA
             </span>
           </div>
           <p className="text-xs text-slate-400 font-medium leading-tight mt-0.5">

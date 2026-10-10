@@ -11,11 +11,11 @@ export function AppLayout() {
     if (pathname === '/patients') return 'Patient Directory';
     if (pathname.startsWith('/patients/')) return 'Patient Clinical History';
     if (pathname === '/documents') return 'Document Repository';
-    if (pathname === '/evidence') return 'Evidence Review & Retrieval';
+    if (pathname === '/evidence') return 'Clinical Validation & Evidence Retrieval';
     if (pathname === '/reviews') return 'Discrepancy Review Queue';
     if (pathname === '/activity') return 'System Audit Trail';
     if (pathname === '/settings') return 'Settings & Demo Roles';
-    return 'FertiLens Nexus';
+    return 'FertiLens Nexora';
   };
 
   const title = getPageTitle(location.pathname);

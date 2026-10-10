@@ -1,4 +1,4 @@
-// Context for User Role in FertiLens Nexus Demo
+// Context for User Role in FertiLens Nexora Demo
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type UserRole =

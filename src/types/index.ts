@@ -1,4 +1,4 @@
-// Centralized API types for FertiLens Nexus
+// Centralized API types for FertiLens Nexora
 
 // ─── Health ───────────────────────────────────────────────────────────────────
 export interface HealthResponse {

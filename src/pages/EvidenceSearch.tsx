@@ -114,10 +114,10 @@ export function EvidenceSearch() {
       {/* Title */}
       <div>
         <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-          Evidence-Grounded Record Search
+          Clinical Validation & Evidence Retrieval
         </h2>
         <p className="text-xs text-slate-500 mt-0.5">
-          Retrieve verbatim clinical findings, ultrasound measurements, and lab results without hallucinations
+          Validate clinical hypotheses and retrieve verbatim laboratory findings, ultrasound measurements, and encounter notes without hallucinations
         </p>
       </div>
 

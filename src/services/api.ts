@@ -485,13 +485,13 @@ export const postSearch = async (body: SearchRequest): Promise<SearchResult> => 
     // Log this search into activity stream
     const searchActivity: ActivityEntry = {
       activity_id: `ACT-${Date.now().toString().slice(-4)}`,
-      action: 'EVIDENCE_SEARCH',
+      action: 'CLINICAL_VALIDATION',
       timestamp: new Date().toISOString(),
       patient_id: body.patient_id,
       patient_display_name: patientDetail.display_name,
       document_id: excerpts[0]?.document_id || null,
       document_name: excerpts[0]?.document_name || null,
-      details: `Search inquiry: "${body.query}" (${excerpts.length} excerpts retrieved)`,
+      details: `Clinical validation inquiry: "${body.query}" (${excerpts.length} excerpts retrieved)`,
     };
     mockActivity = [searchActivity, ...mockActivity];
     setStored('activity', mockActivity);
