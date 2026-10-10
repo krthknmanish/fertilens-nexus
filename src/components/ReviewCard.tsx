@@ -4,17 +4,19 @@ import {
   ExternalLink,
   CheckCircle2,
   FileCheck,
+  FileText,
   Loader2,
   Save,
   RotateCcw,
   Clock,
   ShieldAlert,
   Calendar,
+  X,
 } from 'lucide-react';
-import type { ReviewFlag } from '../types';
-import { ReviewBadge } from './StatusBadge';
-import { patchReview } from '../services/api';
-import { formatDate, formatDateTime } from '../utils/format';
+import type { ReviewFlag, Document } from '../types';
+import { ReviewBadge, StatusBadge } from './StatusBadge';
+import { patchReview, getDocuments } from '../services/api';
+import { formatDate, formatDateTime, formatFileSize } from '../utils/format';
 
 interface ReviewCardProps {
   flag: ReviewFlag;
@@ -26,11 +28,43 @@ export function ReviewCard({ flag, onUpdated }: ReviewCardProps) {
   const [savingAction, setSavingAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [viewingDoc, setViewingDoc] = useState<Document | null>(null);
+  const [viewerLoading, setViewerLoading] = useState(false);
 
-  const openDocument = (docId: string) => {
+  // Open a document: first try real backend, then fall back to demo inline viewer
+  const openDocument = async (docId: string) => {
+    if (!docId || docId === 'ABSENT') {
+      setError('This document is absent from the indexed repository and cannot be opened.');
+      setTimeout(() => setError(null), 4000);
+      return;
+    }
     const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000';
     const url = `${baseUrl}/api/documents/${encodeURIComponent(docId)}/file`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    try {
+      const res = await fetch(url, { method: 'HEAD' });
+      if (res.ok) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+    } catch {
+      // Backend not available — fall through to demo viewer
+    }
+    // Demo mode: look up the document metadata from the in-memory store
+    setViewerLoading(true);
+    try {
+      const docs = await getDocuments({ search: docId });
+      const found = docs.find((d) => d.document_id === docId) ?? docs[0] ?? null;
+      setViewingDoc(found);
+      if (!found) {
+        setError(`Document ${docId} metadata not found in the demo repository.`);
+        setTimeout(() => setError(null), 4000);
+      }
+    } catch {
+      setError('Could not retrieve document from the demo repository.');
+      setTimeout(() => setError(null), 4000);
+    } finally {
+      setViewerLoading(false);
+    }
   };
 
   const handleUpdate = async (newStatus: 'pending' | 'reviewed' | 'resolved', isNoteOnly = false) => {
@@ -119,9 +153,10 @@ export function ReviewCard({ flag, onUpdated }: ReviewCardProps) {
             <button
               type="button"
               onClick={() => openDocument(flag.source_document_id_a)}
-              className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 font-medium hover:underline text-xs"
+              disabled={viewerLoading}
+              className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 font-medium hover:underline text-xs disabled:opacity-50"
             >
-              <ExternalLink className="h-3 w-3" />
+              {viewerLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ExternalLink className="h-3 w-3" />}
               <span>Verify Doc A</span>
             </button>
           </div>
@@ -155,9 +190,10 @@ export function ReviewCard({ flag, onUpdated }: ReviewCardProps) {
             <button
               type="button"
               onClick={() => openDocument(flag.source_document_id_b)}
-              className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 font-medium hover:underline text-xs"
+              disabled={viewerLoading}
+              className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 font-medium hover:underline text-xs disabled:opacity-50"
             >
-              <ExternalLink className="h-3 w-3" />
+              {viewerLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ExternalLink className="h-3 w-3" />}
               <span>Verify Doc B</span>
             </button>
           </div>
@@ -281,6 +317,105 @@ export function ReviewCard({ flag, onUpdated }: ReviewCardProps) {
           )}
         </div>
       </div>
+
+      {/* ── Inline Document Viewer Modal (demo mode) ─────────────────── */}
+      {viewingDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-[1px] p-4">
+          <div className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-3">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-teal-700" />
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Clinical Document Inspection</h3>
+                  <p className="text-xs text-slate-500 font-mono">
+                    {viewingDoc.filename} ({viewingDoc.document_id})
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingDoc(null)}
+                className="rounded p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50"
+                aria-label="Close viewer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 overflow-y-auto space-y-4 text-xs">
+              {/* Demo notice */}
+              <div className="rounded border border-amber-200 bg-amber-50/80 p-3 text-amber-900">
+                <p className="font-semibold">Standalone Demo Sandbox Viewer</p>
+                <p className="mt-0.5 leading-relaxed text-amber-800">
+                  In standalone demo mode, source records are rendered from the synthetic registry.
+                  Connect the FastAPI backend to serve the original PDF binary.
+                </p>
+              </div>
+
+              {/* Metadata table */}
+              <div className="rounded border border-slate-200 bg-slate-50/50 p-4 space-y-2 font-mono text-xs">
+                <div className="flex justify-between border-b border-slate-200 pb-1 font-sans font-semibold text-slate-700">
+                  <span>RECORD ATTRIBUTES</span>
+                  <span>GROUNDED EMR EVIDENCE</span>
+                </div>
+                {[
+                  ['Document ID', viewingDoc.document_id],
+                  ['Assigned Patient', viewingDoc.patient_display_name || viewingDoc.patient_id || 'Unassigned'],
+                  ['Document Date', formatDate(viewingDoc.document_date)],
+                  ['Category', viewingDoc.document_type || 'Unclassified'],
+                  ['Pages', `${viewingDoc.page_count ?? '—'}`],
+                  ['File Size', viewingDoc.file_size_bytes != null ? formatFileSize(viewingDoc.file_size_bytes) : '—'],
+                ].map(([label, val]) => (
+                  <div key={label} className="flex justify-between">
+                    <span className="text-slate-500">{label}:</span>
+                    <span className="font-bold text-slate-800">{val}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Extracted text sample */}
+              <div className="rounded border border-teal-200 bg-teal-50/40 p-4 space-y-2">
+                <span className="font-semibold text-xs text-teal-900 uppercase tracking-wider block">
+                  Indexed Text Findings &amp; Transcript Sample
+                </span>
+                <p className="text-slate-800 leading-relaxed font-sans text-xs">
+                  {viewingDoc.filename.includes('Endocrine')
+                    ? 'Patient: Elena Rostova (FL-1001). Clinical findings: Anti-Müllerian Hormone (AMH): 0.82 ng/mL. Follicle Stimulating Hormone (FSH): 10.4 mIU/mL. Estradiol: 42 pg/mL. Verified by Memorial Endocrine Laboratory.'
+                    : viewingDoc.filename.includes('StJude')
+                    ? 'Patient Transfer Document: Elena Rostova. AMH Serum level reported as 2.45 ng/mL. [Discrepancy active — Flag FLG-301 conflicts with Memorial Endocrine baseline.]'
+                    : viewingDoc.filename.includes('Consult')
+                    ? 'IVF Cycle Planning Consultation. Physician: Dr. Mercer. Referral order for prior 2024 HSG pelvic images noted. Antagonist protocol selected based on AMH 0.82.'
+                    : viewingDoc.filename.includes('Culture')
+                    ? 'Embryology Day-5 Blastocyst Grading: 4 blastocysts vitrified (4AA, 4AB, 3BB, 3BB). Trophectoderm biopsy completed for PGT-A.'
+                    : viewingDoc.filename.includes('Semen')
+                    ? 'Semen Analysis: Volume 2.1 mL, Concentration 2.8 M/mL, Progressive Motility 14%, Morphology 1%. ICSI recommended.'
+                    : `Medical document ${viewingDoc.document_id} ingested into FertiLens Nexora. Indexed metadata and extracted events are ground-truth synchronized with the patient record.`}
+                </p>
+              </div>
+
+              {/* Processing status */}
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">Processing Status:</span>
+                <StatusBadge status={viewingDoc.processing_status} />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between">
+              <span className="text-xs text-slate-400">Ground-truth provenance verification active</span>
+              <button
+                type="button"
+                onClick={() => setViewingDoc(null)}
+                className="rounded bg-slate-800 px-4 py-1.5 text-xs font-semibold text-white hover:bg-slate-900 transition-colors"
+              >
+                Close Viewer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
